@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html ng-app="RestaurantApp">
+<head>
+  <title>Restaurant App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div ng-controller="MainController">
+  <a href="#/myinfo">My Info</a>
+  <a href="#/signup">Sign Up</a>
+</div>
+
+<div ui-view></div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.9/angular.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/1.1.0/angular-ui-router.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
+
+<template>
+  <h1>My Info</h1>
+
+  <div ng-if="!user">
+    <p>Not Signed Up Yet. <a href="#/signup">Sign up Now!</a></p>
+  </div>
+
+  <div ng-if="user">
+    <h2>User Info</h2>
+
+    <p>First Name: {{user.firstName}}</p>
+    <p>Last Name: {{user.lastName}}</p>
+    <p>Email: {{user.email}}</p>
+    <p>Phone Number: {{user.phoneNumber}}</p>
+
+    <h2>Favorite Menu Item</h2>
+
+    <img ng-src="{{user.favoriteMenuItem.image}}" alt="{{user.favoriteMenuItem.name}}">
+    <h3>{{user.favoriteMenuItem.name}}</h3>
+    <p>{{user.favoriteMenuItem.description}}</p>
+  </div>
+</template>
+<template>
+  <h1>Sign Up</h1>
+
+  <form ng-submit="submit()">
+    <div>
+      <label for="firstName">First Name:</label>
+      <input type="text" ng-model="user.firstName" id="firstName" required>
+    </div>
+
+    <div>
+      <label for="lastName">Last Name:</label>
+      <input type="text" ng-model="user.lastName" id="lastName" required>
+    </div>
+
+    <div>
+      <label for="email">Email:</label>
+      <input type="email" ng-model="user.email" id="email" required>
+    </div>
+
+    <div>
+      <label for="phoneNumber">Phone Number:</label>
+      <input type="tel" ng-model="user.phoneNumber" id="phoneNumber" required>
+    </div>
+
+    <div>
+      <label for="favoriteMenuItem">Favorite Menu Item:</label>
+      <input type="text" ng-model="user.favoriteMenuItem" id="favoriteMenuItem" required>
+    </div>
+
+    <button type="submit">Submit</button>
+  </form>
+
+  <div ng-if="errorMessage">
+    <p>{{errorMessage}}</p>
+  </div>
+
+  <div ng-if="successMessage">
+    <p>{{successMessage}}</p>
+  </div>
+</template>
+body {
+  font-family: sans-serif;
+}
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+p {
+  margin-bottom: 10px;
+}
+
+form {
+  width: 50%;
+  margin: 0 auto;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+input {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  background-color: #008CBA;
+  color: white;
+  cursor: pointer;
+}
+(function() {
+
+  'use strict';
+
+  angular.module('RestaurantApp', ['ui.router'])
+    .config(Routes)
+    .service('UserService', UserService)
+    .controller('MainController', MainController)
+    .controller('SignupController', SignupController);
+
+  function Routes($stateProvider, $urlRouterProvider) {
+    $urlRouterProvider.otherwise('/');
+
+    $stateProvider
+      
