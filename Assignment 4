@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html ng-app="MenuApp">
+<head>
+  <title>Restaurant Menu</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div ui-view></div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.9/angular.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/1.1.0/angular-ui-router.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
+<template>
+  <h1>Restaurant Menu</h1>
+  <p>Welcome to our restaurant!</p>
+  <a href="#/categories">See Categories</a>
+</template>
+<template>
+  <h1>Categories</h1>
+  <ul>
+    <li ng-repeat="category in categories">
+      <a href="#/items/{{$index + 1}}">
+        {{category}}
+      </a>
+    </li>
+  </ul>
+</template>
+<template>
+  <h1>Items</h1>
+  <ul>
+    <li ng-repeat="item in items">
+      {{item.name}} - {{item.description}}
+    </li>
+  </ul>
+</template>
+body {
+  font-family: sans-serif;
+}
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  margin-bottom: 10px;
+}
+
+a {
+  text-decoration: none;
+  color: black;
+}
+(function() {
+
+  'use strict';
+
+  angular.module('MenuApp', ['ui.router'])
+    .config(Routes)
+    .component('home', HomeComponent)
+    .component('categories', CategoriesComponent)
+    .component('items', ItemsComponent)
+    .service('MenuDataService', MenuDataService);
+
+  function Routes($stateProvider, $urlRouterProvider) {
+    $urlRouterProvider.otherwise('/');
+
+    $stateProvider
+      .state('home', {
+        url: '/',
+        template: '<home></home>'
+      })
+      .state('categories', {
+        url: '/categories',
+        template: '<categories></categories>',
+        resolve: {
+          categories: function(MenuDataService) {
+            return MenuDataService.getAllCategories();
+          }
+        }
+      })
+      .state('items', {
+        url: '/items/:categoryId',
+        template: '<items></items>',
+        resolve: {
+          items: function(MenuDataService, $stateParams) {
+            return MenuDataService.getItemsForCategory($stateParams.categoryId);
+          }
+        }
+      });
+  }
+
+  function HomeComponent() {}
+
+  function CategoriesComponent($scope, categories) {
+    $scope.categories = categories;
+  }
+
+  function ItemsComponent($scope, items) {
+    $scope.items = items;
+  }
+
+  function MenuDataService($http) {
+    this.getAllCategories = function() {
+      return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/categories.json')
+        .then(function(response) {
+          return response.data;
+        });
+    };
+
+    this.getItemsForCategory = function(categoryShortName) {
+      return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items/' + categoryShortName + '.json')
+        .then(function(response) {
+          return response.data;
+        });
+    };
+  }
+
+})();
