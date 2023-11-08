@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Shopping List Check Off</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body ng-app="ShoppingListCheckOff">
+  <h1>Shopping List Check Off</h1>
+
+  <div class="to-buy-list">
+    <h2>To Buy</h2>
+    <ul ng-controller="ToBuyController">
+      <li ng-repeat="item in toBuyItems">
+        <input type="checkbox" ng-model="item.bought" ng-change="boughtItem(item)">
+        {{item.quantity}} {{item.name}}
+      </li>
+      <p ng-show="toBuyItems.length === 0">Everything is bought!</p>
+    </ul>
+  </div>
+
+  <div class="already-bought-list">
+    <h2>Already Bought</h2>
+    <ul ng-controller="AlreadyBoughtController">
+      <li ng-repeat="item in boughtItems">
+        Bought {{item.quantity}} {{item.name}}
+      </li>
+      <p ng-show="boughtItems.length === 0">Nothing bought yet</p>
+    </ul>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.9/angular.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+
+
+body {
+  font-family: sans-serif;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  margin-bottom: 10px;
+}
+
+.to-buy-list,
+.already-bought-list {
+  float: left;
+  width: 50%;
+  margin-right: 20px;
+}
+
+.already-bought-list {
+  text-align: right;
+}
+
+input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+
+(function() {
+
+  'use strict';
+
+  angular.module('ShoppingListCheckOff', [])
+    .controller('ToBuyController', ToBuyController)
+    .controller('AlreadyBoughtController', AlreadyBoughtController)
+    .service('ShoppingListCheckOffService', ShoppingListCheckOffService);
+
+  function ToBuyController($scope, ShoppingListCheckOffService) {
+    $scope.toBuyItems = ShoppingListCheckOffService.getToBuyItems();
+
+    $scope.boughtItem = function(item) {
+      if (item.bought) {
+        ShoppingListCheckOffService.moveItemToBought(item);
+      }
+    };
+  }
+
+  function AlreadyBoughtController($scope, ShoppingListCheckOffService) {
+    $scope.boughtItems = ShoppingListCheckOffService.getBoughtItems();
+  }
+
+  function ShoppingListCheckOffService() {
+    var toBuyItems = [
+      { name: 'Cookies', quantity: 10 },
+      { name: 'Milk', quantity: 2 },
+      { name: 'Eggs', quantity: 12 },
+      { name: 'Bread', quantity: 1 },
+      { name: 'Fruit', quantity: 5 }
+    ];
+
+    var boughtItems = [];
+
+    this.getToBuyItems = function() {
+      return toBuyItems;
+    };
+
+    this.getBoughtItems = function() {
+      return boughtItems;
+    };
+
+    this.moveItemToBought = function(item) {
+      var index = toBuyItems.indexOf(item);
+      toBuyItems.splice(index, 1);
+      boughtItems.push(item);
+    };
+  }
+
+})();
