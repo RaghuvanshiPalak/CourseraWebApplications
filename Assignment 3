@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Narrow It Down For Me!</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body ng-app="NarrowItDownApp">
+
+<div ng-controller="NarrowItDownController">
+  <input type="text" ng-model="searchTerm" placeholder="Search menu items">
+  <button ng-click="narrowItDown()">Narrow It Down For Me!</button>
+
+  <div ng-show="found.length === 0 && searchTerm !== ''">Nothing found</div>
+  <div ng-show="found.length === 0 && searchTerm === ''">Please enter a search term</div>
+
+  <found-items ng-show="found.length > 0" found="found"></found-items>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.9/angular.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
+body {
+  font-family: sans-serif;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+button {
+  padding: 12px 20px;
+  border: none;
+  background-color: #008CBA;
+  color: white;
+  cursor: pointer;
+}
+
+.found-items {
+  margin-top: 20px;
+}
+
+.found-items li {
+  border: 1px solid #ccc;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.found-items button {
+  float: right;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  background-color: #008CBA;
+  color: white;
+  cursor: pointer;
+}
+(function() {
+
+  'use strict';
+
+  angular.module('NarrowItDownApp', [])
+    .controller('NarrowItDownController', NarrowItDownController)
+    .service('MenuSearchService', MenuSearchService)
+    .directive('foundItems', FoundItemsDirective);
+
+  function NarrowItDownController($scope, MenuSearchService) {
+    var self = this;
+
+    $scope.searchTerm = '';
+    $scope.found = [];
+
+    self.narrowItDown = function() {
+      if ($scope.searchTerm === '') {
+        return;
+      }
+
+      MenuSearchService.getMatchedMenuItems($scope.searchTerm)
+        .then(function(foundItems) {
+          $scope.found = foundItems;
+        });
+    };
+
+    self.removeFoundItem = function(index) {
+      $scope.found.splice(index, 1);
+    };
+  }
+
+  function MenuSearchService($http) {
+    this.getMatchedMenuItems = function(searchTerm) {
+      return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
+        .then(function(response) {
+          var menuItems = response.data;
+          var foundItems = [];
+
+          for (var i = 0; i < menuItems.length; i++) {
+            if (menuItems[i].description.indexOf(searchTerm) !== -1) {
+              foundItems.push(menuItems[i]);
+            }
+          }
+
+          return foundItems;
+        });
+    };
+  }
+
+  function FoundItemsDirective() {
+    return {
+      restrict: 'E',
+      scope: {
+        found: '='
+      },
+      templateUrl: 'foundItems.html',
+      controller: FoundItemsController
+    };
+  }
+
+  function FoundItemsController($scope) {
+    var self = this;
+
+    self.removeFoundItem = function(index) {
+      $scope.$parent.removeFoundItem(index);
+    };
+  }
+
+})();
+<div class="found-items">
+  <ul>
+    <li ng-repeat="item in found">
+      <span>{{item.name}}</span> ({{item.short_name}}) - {{item.description}}
+      <button ng-click="removeFound
