@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Lunch Check</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body ng-app="LunchCheck">
+
+<div ng-controller="LunchCheckController">
+  <input type="text" ng-model="lunchItems" placeholder="Enter lunch items (comma-separated)">
+  <button ng-click="checkLunchItems()">Check If Too Much</button>
+
+  <div ng-show="isTooMuch">Too much!</div>
+  <div ng-show="isEnjoy">Enjoy!</div>
+  <div ng-show="isEmpty">Please enter data first</div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.9/angular.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
+
+
+body {
+  font-family: sans-serif;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+button {
+  padding: 12px 20px;
+  border: none;
+  background-color: #008CBA;
+  color: white;
+  cursor: pointer;
+}
+
+.message {
+  padding: 12px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+
+(function() {
+
+  'use strict';
+
+  angular.module('LunchCheck', [])
+    .controller('LunchCheckController', LunchCheckController);
+
+  function LunchCheckController($scope) {
+    var isTooMuch = false;
+    var isEnjoy = false;
+    var isEmpty = false;
+
+    $scope.checkLunchItems = function() {
+      var lunchItems = $scope.lunchItems.split(',');
+      var numberOfItems = lunchItems.length;
+
+      if (numberOfItems === 0) {
+        isEmpty = true;
+      } else if (numberOfItems <= 3) {
+        isEnjoy = true;
+      } else {
+        isTooMuch = true;
+      }
+
+      $scope.isTooMuch = isTooMuch;
+      $scope.isEnjoy = isEnjoy;
+      $scope.isEmpty = isEmpty;
+    };
+  }
+
+})();
